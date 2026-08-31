@@ -1,0 +1,24 @@
+{
+  "name": "Archimedean Solids",
+  "short_name": "Archimedean",
+  "description": "Turn all thirteen Archimedean solids, show their Catalan duals, read their measurements, and print the nets to fold your own.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#12122a",
+  "theme_color": "#12122a",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

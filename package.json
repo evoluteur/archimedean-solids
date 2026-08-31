@@ -1,0 +1,31 @@
+{
+  "name": "archimedean-solids",
+  "version": "1.0.0",
+  "description": "Turn all thirteen Archimedean solids in 3D, show their Catalan duals, read their measurements, and print the nets to fold your own.",
+  "repository": "github:evoluteur/archimedean-solids",
+  "homepage": "https://evoluteur.github.io/archimedean-solids/",
+  "copyright": "(c) 2026 Olivier Giulieri",
+  "author": "Olivier Giulieri (https://evoluteur.github.io/)",
+  "license": "MIT",
+  "keywords": [
+    "archimedean-solids",
+    "semiregular",
+    "polyhedra",
+    "polyhedron",
+    "catalan-solids",
+    "dual",
+    "truncated-icosahedron",
+    "cuboctahedron",
+    "snub-cube",
+    "rhombicosidodecahedron",
+    "nets",
+    "unfolding",
+    "canonical-form",
+    "convex-hull",
+    "geometry",
+    "3d",
+    "svg",
+    "javascript",
+    "pwa"
+  ]
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://evoluteur.github.io/archimedean-solids/sitemap.xml

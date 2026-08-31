@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-063933E3C2"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-063933E3C2");
+    </script>
+    <title>Archimedean Solids - Turn all thirteen and print their nets</title>
+    <link rel="canonical" href="https://evoluteur.github.io/archimedean-solids/" />
+    <meta charset="utf-8" />
+    <meta http-equiv="content-language" content="en" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <meta name="theme-color" content="#12122a" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Marcellus"
+    />
+    <link href="as.css" rel="stylesheet" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
+      }
+    </script>
+    <meta
+      name="keywords"
+      content="archimedean solids, semiregular polyhedra, truncated icosahedron, cuboctahedron, snub cube, rhombicosidodecahedron, catalan solids, dual, nets, polyhedron, geometry, svg"
+    />
+    <meta
+      name="description"
+      content="Turn all thirteen Archimedean solids in 3D, show their Catalan duals, read their measurements, and print the nets to fold your own. Each one is built from a Platonic solid by truncating, rectifying, expanding or snubbing."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Olivier Giulieri" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Evoluteur" />
+    <meta property="og:title" content="Archimedean Solids" />
+    <meta
+      property="og:description"
+      content="Turn all thirteen Archimedean solids in 3D, show their Catalan duals, read their measurements, and print the nets to fold your own."
+    />
+    <meta property="og:url" content="https://evoluteur.github.io/archimedean-solids/" />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/evoluteur/archimedean-solids/main/as-app.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Archimedean Solids" />
+    <meta
+      name="twitter:description"
+      content="Turn all thirteen Archimedean solids, show their duals, and print the nets."
+    />
+    <meta
+      name="twitter:image"
+      content="https://raw.githubusercontent.com/evoluteur/archimedean-solids/main/as-app.png"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "Archimedean Solids",
+        "description": "Turn all thirteen Archimedean solids in 3D, show their Catalan duals, read their measurements, and print the nets.",
+        "url": "https://evoluteur.github.io/archimedean-solids/",
+        "codeRepository": "https://github.com/evoluteur/archimedean-solids",
+        "license": "https://github.com/evoluteur/archimedean-solids/blob/main/LICENSE",
+        "programmingLanguage": "JavaScript",
+        "author": {
+          "@type": "Person",
+          "name": "Olivier Giulieri",
+          "url": "https://evoluteur.github.io/"
+        }
+      }
+    </script>
+  </head>
+
+  <body onload="init()">
+    <header id="header">
+      <div class="links">
+        <a href="nets.html">Nets</a>
+        <a
+          href="https://github.com/evoluteur/archimedean-solids"
+          target="_blank"
+          rel="noopener"
+          >GitHub</a
+        >
+      </div>
+      <h1>Archimedean <span>Solids</span></h1>
+      <nav class="nav"></nav>
+    </header>
+
+    <main>
+      <div>
+        <div class="stage" id="stage"></div>
+        <p class="hint-drag">Drag the solid to turn it</p>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="panel">
+        <h2 id="pname"></h2>
+        <p class="tagline" id="tagline"></p>
+        <p class="blurb" id="blurb"></p>
+
+        <label>
+          <span>Drawing</span>
+          <select id="mode" onchange="onSelect(this, 'mode')">
+            <option value="shaded">Shaded faces</option>
+            <option value="wire">Wireframe</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Palette</span>
+          <select id="palette" onchange="onSelect(this, 'palette')"></select>
+        </label>
+
+        <label>
+          <span>Background</span>
+          <select id="bg" onchange="onSelect(this, 'bg')"></select>
+        </label>
+
+        <label>
+          <span>Stroke <b id="strokeVal">0.5</b></span>
+          <input
+            type="range"
+            id="stroke"
+            min="0.1"
+            max="2"
+            step="0.1"
+            value="0.5"
+            oninput="onStroke(this)"
+          />
+        </label>
+
+        <label class="check">
+          <input type="checkbox" id="dual" onchange="onCheck(this, 'dual')" />
+          Show the Catalan dual
+        </label>
+
+        <label class="check">
+          <input type="checkbox" id="vertices" onchange="onCheck(this, 'vertices')" />
+          Mark the vertices
+        </label>
+
+        <label class="check">
+          <input
+            type="checkbox"
+            id="spinning"
+            checked
+            onchange="onCheck(this, 'spinning')"
+          />
+          Turn on its own
+        </label>
+
+        <div class="buttons">
+          <button onclick="downloadSvg()">Save SVG</button>
+          <button onclick="downloadPng()">Save PNG</button>
+        </div>
+
+        <table class="facts" id="facts"></table>
+      </div>
+    </main>
+
+    <div class="footer">
+      <p>
+        There are exactly thirteen. A solid counts if every face is a regular
+        polygon and every vertex looks the same as every other, but not all the
+        faces are alike - that last clause is what rules the Platonic five out
+        and the prisms and antiprisms, which go on forever, are set aside by
+        convention. Archimedes described them in a lost book; Pappus lists them
+        as his, and Kepler rediscovered and named them in 1619.
+      </p>
+      <p>
+        Nothing here is written down but the five Platonic seeds. Every solid is
+        made from one of them by cutting its corners, taking its edge midpoints,
+        sliding its faces apart, or twisting them; the four that those operations
+        only approximate are then relaxed until every edge touches one sphere.
+        The faces, duals, measurements and nets all follow from the coordinates,
+        so the numbers and the picture cannot disagree.
+      </p>
+      <p>
+        Archimedean Solids is open source on
+        <a
+          href="https://github.com/evoluteur/archimedean-solids"
+          target="_blank"
+          rel="noopener"
+          >GitHub</a
+        >
+        with an MIT license. Encourage this project by
+        <a
+          href="https://github.com/sponsors/evoluteur"
+          target="_blank"
+          rel="noopener"
+          >becoming a sponsor</a
+        >.
+      </p>
+      <p>
+        You may also like
+        <a
+          href="https://evoluteur.github.io/platonic-solids/"
+          target="_blank"
+          rel="noopener"
+          >Platonic Solids</a
+        >,
+        <a
+          href="https://evoluteur.github.io/sacred-geometry/"
+          target="_blank"
+          rel="noopener"
+          >Sacred Geometry</a
+        >,
+        <a href="https://evoluteur.github.io/cymatics/" target="_blank" rel="noopener"
+          >Cymatics</a
+        >, and
+        <a
+          href="https://evoluteur.github.io/healing-frequencies/"
+          target="_blank"
+          rel="noopener"
+          >Healing Frequencies</a
+        >.
+      </p>
+      <p>
+        (c) 2026
+        <a href="https://evoluteur.github.io/" target="_blank" rel="noopener"
+          >Olivier Giulieri</a
+        >
+      </p>
+    </div>
+
+    <script src="solids.js"></script>
+    <script src="js/as.js"></script>
+  </body>
+</html>
