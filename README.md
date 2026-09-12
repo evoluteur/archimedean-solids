@@ -49,7 +49,7 @@ Everything downstream follows from the vertices:
 
 Every solid is checked against its known vertex, edge and face counts, its vertex configuration read straight off the geometry, all edges equal to one part in 10⁷, all faces regular, its dual's face count, and Euler's formula.
 
-Plain HTML, CSS, and JavaScript building SVG through the DOM — no dependencies, no build step. Archimedean Solids is a Progressive Web App (PWA): you can install it on your phone or computer from the browser, and it works offline.
+Plain HTML, CSS, and JavaScript building SVG through the DOM — no dependencies, no build step. No WebGL, no `<canvas>` for the 3D itself — it runs in any browser that can draw SVG. Archimedean Solids is a Progressive Web App (PWA): you can install it on your phone or computer from the browser, and it works offline.
 
 ## License
 
