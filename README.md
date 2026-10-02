@@ -57,6 +57,6 @@ Archimedean Solids is Open Source at [GitHub](https://github.com/evoluteur/archi
 
 Had fun browsing the app? [Buy me a coffee by becoming a sponsor](https://github.com/sponsors/evoluteur).
 
-You may also be interested in my other projects [Platonic Solids](https://github.com/evoluteur/platonic-solids), [Sacred Geometry](https://github.com/evoluteur/sacred-geometry), [Mandala Maker](https://github.com/evoluteur/mandala-maker), [Cymatics](https://github.com/evoluteur/cymatics), and [Healing Frequencies](https://github.com/evoluteur/healing-frequencies). See them all on [Esoterica](https://evoluteur.github.io/esoterica.html).
+You may also be interested in my other projects [Platonic Solids](https://github.com/evoluteur/platonic-solids), [Sacred Geometry](https://github.com/evoluteur/sacred-geometry), [Mandala Maker](https://github.com/evoluteur/mandala-maker), [Cymatics](https://github.com/evoluteur/cymatics), and [Healing Frequencies](https://github.com/evoluteur/healing-frequencies). For more mystic arts as small web apps, see  [Esoterica](https://evoluteur.github.io/esoterica.html).
 
 (c) 2026 [Olivier Giulieri](https://evoluteur.github.io/)
