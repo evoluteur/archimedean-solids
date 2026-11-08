@@ -210,56 +210,132 @@ const snub = ({ verts, faces }, d, angle) => {
 
 // Nudge the vertices until every edge just touches one sphere and every face
 // is flat. A polyhedron has exactly one such form, so wherever the relaxation
-// starts, it can only end at the Archimedean solid.
+// starts, it can only end at the Archimedean solid. It takes a few thousand
+// rounds, so the loop works on flat arrays and allocates nothing.
 const canonicalise = (verts, faces, tolerance = 1e-9, maxRounds = 20000) => {
-  let V = verts.map((p) => p.slice());
+  const n = verts.length;
+  const V = new Float64Array(n * 3);
+  verts.forEach((p, i) => V.set(p, i * 3));
   const edges = edgesOf(faces);
+  const hits = new Float64Array(n);
+  const seen = new Float64Array(n);
+  edges.forEach(([a, b]) => {
+    hits[a]++;
+    hits[b]++;
+  });
+  faces.forEach((f) => f.forEach((i) => seen[i]++));
+  const move = new Float64Array(n * 3);
+  const nudge = (weights, step) => {
+    for (let i = 0; i < n; i++) {
+      if (!weights[i]) continue;
+      const k = step / weights[i];
+      V[3 * i] += move[3 * i] * k;
+      V[3 * i + 1] += move[3 * i + 1] * k;
+      V[3 * i + 2] += move[3 * i + 2] * k;
+    }
+  };
+
   for (let r = 0; r < maxRounds; r++) {
     // 1. pull the closest point of every edge onto the unit sphere
-    const move = V.map(() => [0, 0, 0]);
-    const hits = V.map(() => 0);
-    edges.forEach(([a, b]) => {
-      const A = V[a];
-      const d = sub(V[b], A);
-      const t = Math.max(0, Math.min(1, -dot(A, d) / dot(d, d)));
-      const closest = add(A, mul(d, t));
-      const l = len(closest) || 1;
-      const push = mul(closest, (1 - l) / l);
-      move[a] = add(move[a], push);
-      move[b] = add(move[b], push);
-      hits[a]++;
-      hits[b]++;
-    });
-    V = V.map((p, i) => (hits[i] ? add(p, mul(move[i], 0.5 / hits[i])) : p));
+    move.fill(0);
+    for (const [ia, ib] of edges) {
+      const a = 3 * ia;
+      const b = 3 * ib;
+      const dx = V[b] - V[a];
+      const dy = V[b + 1] - V[a + 1];
+      const dz = V[b + 2] - V[a + 2];
+      const t = Math.max(
+        0,
+        Math.min(1, -(V[a] * dx + V[a + 1] * dy + V[a + 2] * dz) / (dx * dx + dy * dy + dz * dz))
+      );
+      const cx = V[a] + dx * t;
+      const cy = V[a + 1] + dy * t;
+      const cz = V[a + 2] + dz * t;
+      const l = Math.hypot(cx, cy, cz) || 1;
+      const s = (1 - l) / l;
+      move[a] += cx * s;
+      move[a + 1] += cy * s;
+      move[a + 2] += cz * s;
+      move[b] += cx * s;
+      move[b + 1] += cy * s;
+      move[b + 2] += cz * s;
+    }
+    // a full step converges in half the rounds a half step takes
+    nudge(hits, 1);
 
     // 2. drop every face onto its own best-fit plane
-    const flat = V.map(() => [0, 0, 0]);
-    const seen = V.map(() => 0);
-    faces.forEach((f) => {
-      const c = mean(f.map((i) => V[i]));
-      let n = [0, 0, 0];
-      f.forEach((vi, k) => {
-        n = add(n, cross(sub(V[vi], c), sub(V[f[(k + 1) % f.length]], c)));
-      });
-      n = unit(n);
-      f.forEach((vi) => {
-        flat[vi] = add(flat[vi], mul(n, -dot(sub(V[vi], c), n)));
-        seen[vi]++;
-      });
-    });
-    V = V.map((p, i) => (seen[i] ? add(p, mul(flat[i], 1 / seen[i])) : p));
+    move.fill(0);
+    for (const f of faces) {
+      let cx = 0;
+      let cy = 0;
+      let cz = 0;
+      for (const i of f) {
+        cx += V[3 * i];
+        cy += V[3 * i + 1];
+        cz += V[3 * i + 2];
+      }
+      cx /= f.length;
+      cy /= f.length;
+      cz /= f.length;
+      let nx = 0;
+      let ny = 0;
+      let nz = 0;
+      for (let k = 0; k < f.length; k++) {
+        const p = 3 * f[k];
+        const q = 3 * f[(k + 1) % f.length];
+        const px = V[p] - cx;
+        const py = V[p + 1] - cy;
+        const pz = V[p + 2] - cz;
+        const qx = V[q] - cx;
+        const qy = V[q + 1] - cy;
+        const qz = V[q + 2] - cz;
+        nx += py * qz - pz * qy;
+        ny += pz * qx - px * qz;
+        nz += px * qy - py * qx;
+      }
+      const nl = Math.hypot(nx, ny, nz);
+      nx /= nl;
+      ny /= nl;
+      nz /= nl;
+      for (const i of f) {
+        const p = 3 * i;
+        const d = (V[p] - cx) * nx + (V[p + 1] - cy) * ny + (V[p + 2] - cz) * nz;
+        move[p] -= nx * d;
+        move[p + 1] -= ny * d;
+        move[p + 2] -= nz * d;
+      }
+    }
+    nudge(seen, 1);
 
     // 3. recentre
-    const c = mean(V);
-    V = V.map((p) => sub(p, c));
+    let mx = 0;
+    let my = 0;
+    let mz = 0;
+    for (let i = 0; i < n; i++) {
+      mx += V[3 * i];
+      my += V[3 * i + 1];
+      mz += V[3 * i + 2];
+    }
+    for (let i = 0; i < n; i++) {
+      V[3 * i] -= mx / n;
+      V[3 * i + 1] -= my / n;
+      V[3 * i + 2] -= mz / n;
+    }
 
     if (r % 100 === 99) {
-      const l = edges.map(([a, b]) => len(sub(V[a], V[b])));
-      const hi = Math.max(...l);
-      if ((hi - Math.min(...l)) / hi < tolerance) break;
+      let lo = Infinity;
+      let hi = 0;
+      for (const [ia, ib] of edges) {
+        const a = 3 * ia;
+        const b = 3 * ib;
+        const l = Math.hypot(V[a] - V[b], V[a + 1] - V[b + 1], V[a + 2] - V[b + 2]);
+        lo = Math.min(lo, l);
+        hi = Math.max(hi, l);
+      }
+      if ((hi - lo) / hi < tolerance) break;
     }
   }
-  return V;
+  return Array.from({ length: n }, (_, i) => [V[3 * i], V[3 * i + 1], V[3 * i + 2]]);
 };
 
 /* ------------------------------------------------------------ the duals */
