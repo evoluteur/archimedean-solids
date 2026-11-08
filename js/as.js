@@ -469,6 +469,8 @@ const showSolid = (id) => {
 
 // four of the thirteen are relaxed into shape, which takes a moment
 const setSolid = (id, skipHash) => {
+  // an unknown or empty hash shows the first solid, not a copy cached under a bad id
+  if (!SOLIDS.some((x) => x.id === id)) id = SOLIDS[0].id;
   if (!skipHash) location.hash = id;
   const solid = solidById(id);
   if (cache[id] || solid.operation !== "relax") return showSolid(id);
